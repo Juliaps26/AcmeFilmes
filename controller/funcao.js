@@ -35,6 +35,13 @@ const getFilmes = function(){
      return false
      
  }
+
+ const getBuscarFilme = function(){
+   
+
+ }
+
+
     
 console.log(getFilmes())
 

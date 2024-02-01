@@ -36,4 +36,4 @@ var filmes = {
     ]
   }
 
-  module.exports = {filmes}
+  module.exports = filmes

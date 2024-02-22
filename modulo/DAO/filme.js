@@ -35,6 +35,7 @@ const deleteFilme = async function () {
 // Função para listar todos os filmes do banco de dados
 // all - todos 
 const selectAllFilmes = async function () {
+
     // Criar uma variavel para montar meu script SQL para o banco de dados
     let sql = 'select * from tbl_filme';
 
@@ -58,9 +59,48 @@ const selectAllFilmes = async function () {
 }
 
 // Função para buscar um filme no banco de dados filtrando pelo ID
-const selectByIdFilme = async function () {
+const selectByIdFilme = async function (id) {
+
+    try {
+        // Tudo que queremos executar
+        // Script SQL para filtrar pelo ID
+    let sql = `select * from tbl_filme where id = ${id}`;
+    // Executa  SQL no banco de dados
+    let rsFilme = await prisma.$queryRawUnsafe(sql);
+
+ // O que o banco retornar volta pra controller
+    return rsFilme;
+        
+    } catch (error) {
+        
+        
+    }
+
+    // Script SQL para filtrar pelo ID
+    let sql = `select * from tbl_filme where id = ${id}`;
+    // Executa  SQL no banco de dados
+    let rsFilme = await prisma.$queryRawUnsafe(sql);
+
+ // O que o banco retornar volta pra controller
+    return rsFilme;
+}
+
+
+// Função para buscar um filme filtrando pelo nome
+const selectByNomeFilme = async function(){
+  let filmesJSON ={}
+  let dadosFilmes= await filmeDAO.selectByNomeFilme()
+  if(dadosFilmes){
+    filmesJSON.filmes= dadosFilmes
+    return filmesJSON
+  }
+  else
+  return false
+
 
 }
+
+
 
 // Exportar todas as funções para a controller
 module.exports = {

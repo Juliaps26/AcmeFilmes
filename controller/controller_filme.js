@@ -6,6 +6,14 @@
  *
  *****************************************************************************************************************/
 
+// Import
+const message = require('../modulo/config.js')
+
+
+
+
+
+
 // Import do arquivo DAO que fará comunicação como Banco de Dados 
 const filmeDAO = require('../modulo/DAO/filme.js');
 
@@ -30,7 +38,7 @@ const setExcluirFilme = async function () {
 
 }
 // Função para retornar todos os filmes
-const getListarFilmes = async function () {
+const getListarFilmes = async function (id) {
 // Criando objeto JSON  
     let filmesJSON = {};
     // Chama a função do DAO para retornar os dados da tabela de Filme
@@ -51,7 +59,39 @@ const getListarFilmes = async function () {
 
 }
 // Função para buscar um filme pelo ID
-const getBuscarFilme = async function () {
+const getBuscarFilme = async function (id) {
+
+// Recebe o ID do filme
+    let idFilme = id;
+    let filmesJSON = {
+
+    }
+
+// Cria o objeto JSON
+    if(idFilme == '' || idFilme == undefined || isNaN(idFilme)){
+        return message.ERROR_INVALID_ID;
+    }else{
+        // Encaminha o ID para o DAO buscar no banco de dados 
+        let dadosFilme = await filmeDAO.selectByIdFilme(idFilme);
+        // Verifica se o DAO retornou dados
+        if(dadosFilme){
+
+            // Validação para verificar a quantidade de itens retornados
+            if(dadosFilme.length > 0){
+                 // Cria o JSON para retorno
+            filmesJSON.filme = dadosFilme;
+            filmesJSON.status_code = 200;
+
+            return filmesJSON;
+            }else{
+                // Se não for verdadeiro retorna o not found 404
+                return message.ERROR_NOT_FOUND;
+            }
+           
+        }else{
+            return message.ERROR_INTERNAL_SERVER_DB  //500
+        }
+    }
 
 }
 

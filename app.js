@@ -44,8 +44,6 @@ const controllerFilmes = require('./controller/controller_filme.js');
  
 
 
-
-
 // app get
 
 // Trata a solicitação, obtedo a lista de filmes 'Get filmes', se a lista exisitir é
@@ -101,9 +99,24 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
 });
 
 
+// End point: Retorna o filme filtrando pelo ID
+ app.get('/v2/acmeFilmes/filme/:id', cors(), async function(request, response){
+    // Recebe o ID da requisição
+    let idFilme= request.params.id
+    // Encaminha o ID para a controller buscar o filme
+    let dadosFilme = await controllerFilmes.getBuscarFilme(idFilme)
+    response.status(dadosFilme.status_code);
+    response.json(dadosFilme);
+ })
+
+
+ // End point: Retornar os filmes pelo nome e arrumar na padronização
+
+
+
 // Executa a API e faz ela ficar aguardando requisições
 app.listen('8080',function(){
-    console.log('API no ar!!!')
+    console.log('API funcionando!')
 })
 
 

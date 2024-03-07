@@ -8,6 +8,7 @@
 // Criando variavel global 
 // Import da biblioteca do prisma client para manipular scripts SQL
 const { PrismaClient } = require('@prisma/client');
+const { Sql } = require('@prisma/client/runtime/library');
 
 // Instancia da classe PrismaClient
 const prisma = new PrismaClient();
@@ -18,7 +19,82 @@ const prisma = new PrismaClient();
 
 // Função para inserir um novo filme no banco de dados 
 // async 
-const insertFilme = async function () {
+const insertFilme = async function (dadosFilme) {
+
+    try {
+
+        let sql;
+        
+        if(dadosFilme.data_relancamento != ''&& 
+        dadosFilme.data_relancamento    != null&&
+        dadosFilme.data_relancamento    != undefined){
+
+
+    // Criar uma variavel
+             // Colocar a crase para facilotar a concatenação
+    sql = `insert into tbl_filme( 
+        nome,
+        sinopse,
+        duracao,
+        data_lancamento,
+        data_relancamento,
+        foto_capa,
+        valor_unitario
+
+    ) values(
+
+        '${dadosFilme.nome}',
+        '${dadosFilme.sinopse}',
+        '${dadosFilme.duracao}',
+        '${dadosFilme.data_lancamento}',
+        '${dadosFilme.data_relancamento}',
+        '${dadosFilme.foto_capa}',
+        '${dadosFilme.valor_unitario}'
+    )`;
+
+    // Script a cima ^ - concatenado as variaveis 
+} else {
+     sql = `insert into tbl_filme( 
+        nome,
+        sinopse,
+        duracao,
+        data_lancamento,
+        data_relancamento,
+        foto_capa,
+        valor_unitario
+
+    ) values(
+
+        '${dadosFilme.nome}',
+        '${dadosFilme.sinopse}',
+        '${dadosFilme.duracao}',
+        '${dadosFilme.data_lancamento}',
+        '${dadosFilme.data_relancamento}',
+        null,
+        '${dadosFilme.foto_capa}',
+        '${dadosFilme.valor_unitario}'
+    )`;
+
+
+}
+
+    // $executeRawUnsafe() - serve para executar scripts sem retorno de dados 
+    //  (insert, update e delete)
+    // $queryRawUnsafe() - serve para executar scripts com o retorno de dados (select)
+    let result = await prisma.$executeRawUnsafe(sql);
+
+    if(result)
+    return true;
+    else
+    // Esses dois return false, signfica falha na comunicação com o banco 
+    return false;
+     
+    
+        } catch(error){
+            console.log(error)
+            return false;
+        }
+
 
 }
 
@@ -87,7 +163,7 @@ const selectByIdFilme = async function (id) {
 
 
 // Função para buscar um filme filtrando pelo nome
-const selectByNomeFilme = async function(){
+const selectByNomeFilme = async function(nome){
   let filmesJSON ={}
   let dadosFilmes= await filmeDAO.selectByNomeFilme()
   if(dadosFilmes){
@@ -100,7 +176,17 @@ const selectByNomeFilme = async function(){
 
 }
 
+const retornarID = async function(){
+    try {
+        let sql = `select cast(last_insert_id() AS DECIMAL) as id from tbl_filme limit 1;`
+        let rsFilmes = await prisma.$queryRawUnsafe(sql)
 
+        return rsFilmes
+    } catch (error) {
+        return false
+        
+    }
+}
 
 // Exportar todas as funções para a controller
 module.exports = {
@@ -108,5 +194,6 @@ module.exports = {
     updateFilme,
     deleteFilme,
     selectAllFilmes,
-    selectByIdFilme
+    selectByIdFilme,
+    retornarID
 }

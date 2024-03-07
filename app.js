@@ -29,20 +29,20 @@ const cors = require('cors');
 const app = express();
 app.use((request,response,next) => {
     response.header('Acess-Control-Allow-Origin','*');
-    response.header('Acess-Control-Allow-Methods','GET');
+    response.header('Acess-Control-Allow-Methods','GET, POST, PUT, DELETE, OPTIONS');
     app.use(cors())
     next();
 
 })
 
-/**          Import dos arquivos da controller do projeto **/
+/**Import dos arquivos da controller do projeto **/
 
 const controllerFilmes = require('./controller/controller_filme.js');
 
 
-/***********************************************/
- 
-
+/**************************************************/
+// Criando um objeto para controlar a chegada dos dados ada requisição em formato JSON
+const bodyParserJSON = bodyParser.json();
 
 // app get
 
@@ -61,6 +61,8 @@ app.get('/v1/acmefilmes/filme',cors(),async function(request,response,next){
     }
 })
 
+
+
 app.get('/v1/acmefilmes/filme/:idUsuario',cors(),async function(request,response,next){
     let idFilme=request.params.idUsuario
     let controleFilmes=require('./controller/funcoes')
@@ -74,10 +76,13 @@ app.get('/v1/acmefilmes/filme/:idUsuario',cors(),async function(request,response
     }
 })
 
-// End Point - Versão 1.0 - retorna todos os filmes do arquivo filmes.js
-app.get('/v1/acmefilmes/filmes', cors(), async function(request, response){
 
-});
+
+
+// End Point - Versão 1.0 - retorna todos os filmes do arquivo filmes.js
+// app.get('/v1/acmefilmes/filmes', cors(), async function(request, response){
+
+// });
 
 
 // End Point - Versão 2.0 - retorna todos os filmes do Banco de dados
@@ -86,15 +91,8 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
 
 // Chama a função da controller para retornar os filmes
     let dadosFilmes = await controllerFilmes.getListarFilmes();
-
-    // Validação para retornar o JSON dos filmes ou retornar 404
-    if(dadosFilmes){
-        response.json(dadosFilmes);
-        response.status(200);
-    }else{
-        response.json({message: 'Nenhum registro foi encontrao'});
-        response.status(404);
-    }
+    response.status(dadosFilmes.status_code)
+    response.json(dadosFilmes)
 
 });
 
@@ -111,6 +109,27 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
 
 
  // End point: Retornar os filmes pelo nome e arrumar na padronização
+
+ app.get('/v2/acmefilmes/filmes/filme', cors(), async function(request,response){
+    let nomeFilme=request.query.nome
+    let dadosFilmes=await controllerFilmes.getBuscarFilmePeloNome(nomeFilme)
+    response.status(dadosFilmes.status_code)
+    response.json(dadosFilmes)
+ })
+
+
+ app.post('/v2/acmefilmes/filme', cors(), bodyParserJSON, async function(request, response){
+    // Recebe todos os dados encaminhados na requisição pelo body
+
+    let dadosBody = request.body;
+
+    // Encaminh os dados para a controller enviar para o DAO
+    let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody);
+
+    response.status(resultDadosNovoFilme.status_code);
+    response.json(resultDadosNovoFilme)
+
+ })
 
 
 

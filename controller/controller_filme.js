@@ -9,11 +9,6 @@
 // Import
 const message = require('../modulo/config.js')
 
-
-
-
-
-
 // Import do arquivo DAO que fará comunicação como Banco de Dados 
 const filmeDAO = require('../modulo/DAO/filme.js');
 
@@ -23,7 +18,82 @@ const filmeDAO = require('../modulo/DAO/filme.js');
 // Quando houver solicitação de dados set
 // async - tempo de processamento
 
-const setInserirNovoFilme = async function () {
+const setInserirNovoFilme = async function (dadosFilme) {
+
+    // Cria um objeto JSON para devolver os dados criados na requisição
+    let novoFilmeJSON = {};
+
+    //Validação de campos obrigatórios ou com a digitação inválida
+    if(dadosFilme.nome == ''         || dadosFilme.nome == undefined             || dadosFilme.nome == null          || dadosFilme.nome.length > 80            ||
+    dadosFilme.sinopse == ''         ||  dadosFilme.sinopse == undefined         ||  dadosFilme.sinopse == null         || dadosFilme.sinopse.length > 65000      ||
+    dadosFilme.duracao == ''         || dadosFilme.duracao == undefined          || dadosFilme.duracao == null          || dadosFilme.duracao.length > 8          ||
+    dadosFilme.data_lancamento == '' || dadosFilme.data_lancamento == undefined  || dadosFilme.data_lancamento == null  || dadosFilme.data_lancamento.length !=10 ||
+    dadosFilme.foto_capa == ''       || dadosFilme.foto_capa == undefined        || dadosFilme.foto_capa == null        || dadosFilme.foto_capa.length>200        ||
+    dadosFilme.valor_unitario.length>6
+
+    ){
+        return message.ERROR_REQUIRED_FIELDS;  //400
+    }else{
+
+        // Variavel
+        let validateStatus = false;
+
+
+
+// IF - Validação da data de relancamento, já que ela não é obrigatória no BD
+
+                                   // Se ela for diferente de nulo               // Diferente de vazio
+        if(dadosFilme.data_relancamento != null &&
+            dadosFilme.data_relancamento !=''   &&
+            dadosFilme.data_relancamento != undefined){ 
+
+                // Validação para verificar se a data esta com a quantidade de digitos corretos (10)
+        if(dadosFilme.data_relancamento.length != 10){
+                     return message.ERROR_REQUIRED_FIELDS; //400
+
+        }else{
+            validateStatus = true;
+        }
+} else{
+ validateStatus = true
+}
+
+
+// IF - Validação para verificar se podemos encaminhar os dados para o DAO
+if(validateStatus){
+
+    
+        // Encaminha os dados do filme para o DAO inserir no BD
+        let novoFilme = await filmeDAO.insertFilme(dadosFilme);
+
+
+        // Validação para verificar se o DAO inseriu os dados do BD
+        if(novoFilme){
+
+
+            // Criando uma variavel para mostra o id e retornar a função que criamos no DAO (filme.js)
+                                            // Puxando a função ()
+            let selecionarID = await filmeDAO.retornarID()
+            // Dados do filme e chamei o id, colocando para aparecer junto com todos os dados dos filmes
+            // 0 - para nã ficar em formato de JSON 
+            dadosFilme.id = selecionarID[0].id
+
+
+            // Se ele inseriu, cria um JSON de retorno de dados (201)
+            // Devolver no JSON as mesmas coisas que estam no config
+            novoFilmeJSON.filme       = dadosFilme;
+            novoFilmeJSON.status      = message.SUCCESS_CREATED_ITEM.status;
+            novoFilmeJSON.status_code = message.SUCCESS_CREATED_ITEM.status_code;
+            novoFilmeJSON.message     = message.SUCCESS_CREATED_ITEM.message;
+
+            return novoFilmeJSON;  //201
+        } else{
+            return message.ERROR_INTERNAL_SERVER_DB;  
+        }
+
+}
+
+    }
 
 }
 

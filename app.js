@@ -117,18 +117,20 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
     response.json(dadosFilmes)
  })
 
-
+// Implementação do POST
  app.post('/v2/acmefilmes/filme', cors(), bodyParserJSON, async function(request, response){
-    // Recebe todos os dados encaminhados na requisição pelo body
 
+    // Recebe o content-type com o tipo de dados encaminhado na requisição
+    let contentType = request.headers['content-type'];
+
+    // Recebe todos os dados encaminhados na requisição pelo body
     let dadosBody = request.body;
 
-    // Encaminh os dados para a controller enviar para o DAO
-    let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody);
+    // Encaminha os dados para a controller enviar para o DAO
+    let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody,contentType);
 
     response.status(resultDadosNovoFilme.status_code);
     response.json(resultDadosNovoFilme)
-
  })
 
 

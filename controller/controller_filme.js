@@ -13,12 +13,17 @@ const message = require('../modulo/config.js')
 const filmeDAO = require('../modulo/DAO/filme.js');
 
 
-
-// Função para validar e inserir um novo filme 
+// Função para validar e inserir um novo filme - async  tempo de processamento
 // Quando houver solicitação de dados set
-// async - tempo de processamento
 
-const setInserirNovoFilme = async function (dadosFilme) {
+const setInserirNovoFilme = async function (dadosFilme, contentType) {
+
+try{
+
+
+    // Estrutura condicional
+// Validação do content-type na requisição
+    if(String(contentType).toLowerCase() == 'application/json'){
 
     // Cria um objeto JSON para devolver os dados criados na requisição
     let novoFilmeJSON = {};
@@ -31,7 +36,8 @@ const setInserirNovoFilme = async function (dadosFilme) {
     dadosFilme.foto_capa == ''       || dadosFilme.foto_capa == undefined        || dadosFilme.foto_capa == null        || dadosFilme.foto_capa.length>200        ||
     dadosFilme.valor_unitario.length>6
 
-    ){
+    ){   
+        // Caso tenha algum problema retorna o 400
         return message.ERROR_REQUIRED_FIELDS;  //400
     }else{
 
@@ -95,18 +101,36 @@ if(validateStatus){
 
     }
 
+}else{
+    // Retornando a mensagem de erro do content-type
+    return message.ERROR_CONTENT_TYPE;   //415
 }
 
-// Função para validar e atualizar um filme
+}catch(error){
+    return message.ERROR_INTERNAL_SERVER; //500 erro na controller
 
+}
+
+}
+
+
+// Função para validar e atualizar um filme - PUT
 const setAtualizarFilme = async function () {
-
 }
 
-// Função para excluir um filme
+// Função para excluir um filme - DELETE 
 const setExcluirFilme = async function () {
 
+
 }
+
+
+
+
+
+
+
+
 // Função para retornar todos os filmes
 const getListarFilmes = async function (id) {
 // Criando objeto JSON  

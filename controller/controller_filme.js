@@ -7,6 +7,7 @@
  *****************************************************************************************************************/
 
 // Import
+const { Sql } = require('@prisma/client/runtime/library.js');
 const message = require('../modulo/config.js')
 
 // Import do arquivo DAO que fará comunicação como Banco de Dados 
@@ -19,8 +20,6 @@ const filmeDAO = require('../modulo/DAO/filme.js');
 const setInserirNovoFilme = async function (dadosFilme, contentType) {
 
 try{
-
-
     // Estrutura condicional
 // Validação do content-type na requisição
     if(String(contentType).toLowerCase() == 'application/json'){
@@ -115,24 +114,77 @@ if(validateStatus){
 
 
 // Função para validar e atualizar um filme - PUT
-const setAtualizarFilme = async function () {
+// recebe o id pela url
+const setAtualizarFilme = async function (id, contentType, dadosFilme) {
+    try{
+
+        if(String(contentType).toLowerCase()=='application/json'){
+            let idFilme = id
+            // Validação
+            if(idFilme== ''|| idFilme ==undefined||isNaN(idFilme))
+            return message.ERROR_INVALID_ID
+            else{
+                // Variavel para buscar no DAO o select filme pelo ID
+                let filme=await filmeDAO.selectByIdFilme(idFilme)
+                if(filme){
+                    let atualizacaoJSON={}
+                    let atualizacao=await filmeDAO.updateFilme(idFilme, dadosFilme)
+
+                    if(atualizacao){
+                        atualizacaoJSON.filme=dadosFilme
+                        atualizacaoJSON.status=message.SUCCESS_UPDATE_ITEM.status 
+                        atualizacaoJSON.status_code=message.SUCCESS_UPDATE_ITEM.status_code //200
+                        atualizacaoJSON.message=message.SUCCESS_UPDATE_ITEM.message 
+                        
+                        return atualizacaoJSON
+
+                    }
+                    else{
+                        return message.ERROR_NOT_FOUND
+                    }
+                }
+                else
+                return message.ERROR_NOT_FOUND
+            }
+
+        }else{
+            return message.ERROR_CONTENT_TYPE
+        }
+    } catch(error){
+        return message.ERROR_INTERNAL_SERVER
+    }
+    
 }
 
 // Função para excluir um filme - DELETE 
-const setExcluirFilme = async function () {
+const setExcluirFilme = async function (id) {
 
+    try{
+        // Receber o id do filme 
+        let idFilme = id
+        // Validação para verificar se o id está vazio ou não existe 
+        if(idFilme== '' || idFilme==undefined ||isNaN(idFilme))
+        return message.ERROR_INVALID_ID //400
 
+        else{
+            // Criando variavel para buscar no DAO 
+            let excluir =  await filmeDAO.deleteFilme(idFilme)
+            // Validação se excluir o filme retornar uma messagem de sucesso 
+            if(excluir)
+            return message.SUCCESS_DELETE_ITEM //200
+            else{
+                return message.ERROR_NOT_FOUND  //404
+            }
+        }
+
+    } catch (error) {
+        return message.ERROR_INTERNAL_SERVER  //500
+    }
 }
 
 
-
-
-
-
-
-
 // Função para retornar todos os filmes
-const getListarFilmes = async function (id) {
+const getListarFilmes = async function () {
 // Criando objeto JSON  
     let filmesJSON = {};
     // Chama a função do DAO para retornar os dados da tabela de Filme

@@ -99,12 +99,74 @@ const insertFilme = async function (dadosFilme) {
 }
 
 // Função para atualizar um filme no banco de dados 
-const updateFilme = function () {
+const updateFilme = async function (id, dadosFilme) {
+    try{
+        let sql
+        if(dadosFilme.data_relancamento!= ''&
+        dadosFilme.data_relancamento!=null&&
+        dadosFilme.data_relancamento!=undefined){
+
+            sql= `
+            update tbl_filme
+
+            set
+
+            nome='${dadosFilme.nome}',
+            sinopse='${dadosFilme.sinopse}',
+            duracao='${dadosFilme.duracao}',
+            data_lancamento='${dadosFilme.data_lancamento}',
+            data_relancamento='${dadosFilme.data_relancamento}',
+            foto_capa='${dadosFilme.foto_capa}',
+            valor_unitario='${dadosFilme.valor_unitario}',
+
+            where id='${id}';
+            `
+        }else{
+
+            sql= `
+            update tbl_filme
+
+            set
+
+            nome='${dadosFilme.nome}',
+            sinopse='${dadosFilme.sinopse}',
+            duracao='${dadosFilme.duracao}',
+            data_lancamento='${dadosFilme.data_lancamento}',
+            data_relancamento='${dadosFilme.data_relancamento}',
+            foto_capa='${dadosFilme.foto_capa}',
+            valor_unitario='${dadosFilme.valor_unitario}',
+
+            where id='${id}';
+            `
+        }
+
+        let atualizado = await prisma.$queryRawUnsafe(sql)
+        if(atualizado)
+        return true
+        else
+        return false
+    }catch(error) {
+        return false
+
+    }
+
 
 }
 
 // Função para excluir um filme no banco de dados 
-const deleteFilme = async function () {
+// Implementação de trycatch
+const deleteFilme = async function (id) {
+    // Executar e verificar erro
+    try{
+        // Variavel para deletar na tabela filmes do BD de acordo com o id
+        let sql= `delete from tbl_filme where id=${id}`
+        // Variavel para consultar no banco de dados e guardar na variavel rsFilmes
+        let rsFilme = await prisma.$queryRawUnsafe(sql)
+        return rsFilme
+        // Caso houver erro retorna false
+    } catch (error){
+        return false
+    }
 
 }
 

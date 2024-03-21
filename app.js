@@ -61,8 +61,6 @@ app.get('/v1/acmefilmes/filme',cors(),async function(request,response,next){
     }
 })
 
-
-
 app.get('/v1/acmefilmes/filme/:idUsuario',cors(),async function(request,response,next){
     let idFilme=request.params.idUsuario
     let controleFilmes=require('./controller/funcoes')
@@ -75,9 +73,6 @@ app.get('/v1/acmefilmes/filme/:idUsuario',cors(),async function(request,response
         response.status(404)
     }
 })
-
-
-
 
 // End Point - Versão 1.0 - retorna todos os filmes do arquivo filmes.js
 // app.get('/v1/acmefilmes/filmes', cors(), async function(request, response){
@@ -109,7 +104,6 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
 
 
  // End point: Retornar os filmes pelo nome e arrumar na padronização
-
  app.get('/v2/acmefilmes/filmes/filme', cors(), async function(request,response){
     let nomeFilme=request.query.nome
     let dadosFilmes=await controllerFilmes.getBuscarFilmePeloNome(nomeFilme)
@@ -117,7 +111,7 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
     response.json(dadosFilmes)
  })
 
-// Implementação do POST
+// Implementação do POST 
  app.post('/v2/acmefilmes/filme', cors(), bodyParserJSON, async function(request, response){
 
     // Recebe o content-type com o tipo de dados encaminhado na requisição
@@ -133,6 +127,24 @@ app.get('/v2/acmefilmes/filmes', cors(), async function(request, response){
     response.json(resultDadosNovoFilme)
  })
 
+ // Excluir um filme através do id 
+ app.delete('/v2/acmeFilmes/deletefilme/:id', cors(), async function(request, response){
+    let idFilme= request.params.id
+    let filmeExcluido= await controllerFilmes.setExcluirFilme(idFilme)
+    response.status(filmeExcluido.status_code)
+    response.json(filmeExcluido)
+
+ })
+
+
+ app.put('/v2/acmeFilmes/updateFilme/:id', cors(), async function(request,response){
+
+    let idFilme = request.params.id
+    let contentType=request.headers['content-type']
+    let dadosBody=request.body
+    let atualizacaoNovoFilme=
+
+ })
 
 
 // Executa a API e faz ela ficar aguardando requisições
